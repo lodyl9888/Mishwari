@@ -1,15 +1,15 @@
-name: mishwari
-description: A smart transport income & expense tracker.
+name: mashro3y
+description: تطبيق لتسجيل الدخل والمصروفات اليومية
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: '>=3.2.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences: ^2.2.1
-  intl: ^0.18.1
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
