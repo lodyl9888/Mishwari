@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mishwary/models/transaction.dart'; // سنحتاجه لعرض القائمة
-import 'package:mishwary/providers/transaction_provider.dart'; // استيراد العقل المدبر
+import 'package:mishwary/providers/transaction_provider.dart';
+import 'package:mishwary/screens/add_transaction_sheet.dart'; // استيراد واجهة الإدخال
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
+  void _openAddTransactionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // مهم ليظهر النموذج فوق لوحة المفاتيح
+      builder: (_) => const AddTransactionSheet(),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // قراءة البيانات الحقيقية من الـ Providers
     final dailyTransactions = ref.watch(dailyTransactionsProvider);
     final dailyIncome = ref.watch(dailyIncomeProvider);
     final dailyExpense = ref.watch(dailyExpenseProvider);
@@ -22,10 +29,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // الجزء العلوي لعرض الملخص اليومي (يعرض الآن بيانات حقيقية)
           _buildSummaryCard(dailyIncome, dailyExpense, netProfit),
-
-          // عنوان لقائمة المعاملات
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Row(
@@ -36,8 +40,6 @@ class HomeScreen extends ConsumerWidget {
               ],
             ),
           ),
-
-          // عرض قائمة المعاملات الفعلية
           Expanded(
             child: dailyTransactions.isEmpty
                 ? const Center(
@@ -55,7 +57,7 @@ class HomeScreen extends ConsumerWidget {
                             color: transaction.isExpense ? Colors.red : Colors.green,
                           ),
                           title: Text(transaction.category),
-                          subtitle: Text(transaction.description),
+                          subtitle: transaction.description.isEmpty ? null : Text(transaction.description),
                           trailing: Text(
                             '${transaction.isExpense ? '-' : '+'}${transaction.amount.toStringAsFixed(2)}',
                             style: TextStyle(
@@ -70,32 +72,14 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      // سنقوم بتفعيل هذا الزر في الخطوة التالية
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // للتجربة فقط: إضافة معاملة دخل وهمية
-          ref.read(transactionNotifierProvider.notifier).addTransaction(
-                amount: 50.0,
-                description: 'مشوار تجريبي',
-                category: 'دخل',
-                isExpense: false,
-              );
-              
-          // للتجربة فقط: إضافة معاملة مصروف وهمية
-           ref.read(transactionNotifierProvider.notifier).addTransaction(
-                amount: 10.0,
-                description: 'بنزين تجريبي',
-                category: 'بنزين',
-                isExpense: true,
-              );
-        },
+        onPressed: () => _openAddTransactionSheet(context), // تم التعديل هنا
         child: const Icon(Icons.add),
         tooltip: 'إضافة معاملة',
       ),
     );
   }
 
-  // ويدجت خاصة لعرض بطاقة الملخص
   Widget _buildSummaryCard(double income, double expense, double netProfit) {
     return Card(
       margin: const EdgeInsets.all(16.0),
@@ -115,7 +99,6 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  // ويدجت خاصة لعرض كل عنصر في بطاقة الملخص
   Widget _buildSummaryItem(String title, String value, Color color) {
     return Column(
       children: [
