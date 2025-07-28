@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-// سنقوم بإنشاء هذا الملف لاحقًا لإدارة البيانات
-// import '../providers/transaction_provider.dart';
+import 'package:mishwary/models/transaction.dart'; // سنحتاجه لعرض القائمة
+import 'package:mishwary/providers/transaction_provider.dart'; // استيراد العقل المدبر
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // في المستقبل، سنقرأ البيانات الحقيقية من هنا
-    // final transactions = ref.watch(transactionListProvider);
-
-    // بيانات مؤقتة للعرض فقط
-    final double dailyIncome = 100.0;
-    final double dailyExpense = 30.0;
+    // قراءة البيانات الحقيقية من الـ Providers
+    final dailyTransactions = ref.watch(dailyTransactionsProvider);
+    final dailyIncome = ref.watch(dailyIncomeProvider);
+    final dailyExpense = ref.watch(dailyExpenseProvider);
     final double netProfit = dailyIncome - dailyExpense;
 
     return Scaffold(
@@ -25,7 +22,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // الجزء العلوي لعرض الملخص اليومي
+          // الجزء العلوي لعرض الملخص اليومي (يعرض الآن بيانات حقيقية)
           _buildSummaryCard(dailyIncome, dailyExpense, netProfit),
 
           // عنوان لقائمة المعاملات
@@ -40,20 +37,60 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
 
-          // هنا سنعرض قائمة المعاملات الفعلية لاحقًا
+          // عرض قائمة المعاملات الفعلية
           Expanded(
-            child: Center(
-              child: Text('سيتم عرض قائمة المعاملات هنا'),
-            ),
+            child: dailyTransactions.isEmpty
+                ? const Center(
+                    child: Text('لا توجد معاملات اليوم. ابدأ بإضافة واحدة!'),
+                  )
+                : ListView.builder(
+                    itemCount: dailyTransactions.length,
+                    itemBuilder: (context, index) {
+                      final transaction = dailyTransactions[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        child: ListTile(
+                          leading: Icon(
+                            transaction.isExpense ? Icons.arrow_downward : Icons.arrow_upward,
+                            color: transaction.isExpense ? Colors.red : Colors.green,
+                          ),
+                          title: Text(transaction.category),
+                          subtitle: Text(transaction.description),
+                          trailing: Text(
+                            '${transaction.isExpense ? '-' : '+'}${transaction.amount.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              color: transaction.isExpense ? Colors.red : Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
-      // سنضيف أزرار إضافة الدخل والمصروف هنا لاحقًا
+      // سنقوم بتفعيل هذا الزر في الخطوة التالية
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // سيتم فتح شاشة إضافة معاملة جديدة من هنا
+          // للتجربة فقط: إضافة معاملة دخل وهمية
+          ref.read(transactionNotifierProvider.notifier).addTransaction(
+                amount: 50.0,
+                description: 'مشوار تجريبي',
+                category: 'دخل',
+                isExpense: false,
+              );
+              
+          // للتجربة فقط: إضافة معاملة مصروف وهمية
+           ref.read(transactionNotifierProvider.notifier).addTransaction(
+                amount: 10.0,
+                description: 'بنزين تجريبي',
+                category: 'بنزين',
+                isExpense: true,
+              );
         },
         child: const Icon(Icons.add),
+        tooltip: 'إضافة معاملة',
       ),
     );
   }
