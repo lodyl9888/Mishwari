@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mishwary/models/transaction.dart'; // استيراد النموذج الذي أنشأناه
-// سنقوم بإنشاء هذا الملف في الخطوة التالية
-// import 'package:mishwary/screens/home_screen.dart'; 
+import 'package:mishwary/models/transaction.dart';
+import 'package:mishwary/screens/home_screen.dart'; // تم تفعيل هذا السطر
 
 Future<void> main() async {
   // تأكد من تهيئة Flutter قبل أي شيء
@@ -38,17 +37,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
-        fontFamily: 'Roboto', // يمكنك تغيير الخط لاحقًا إذا أردت
+        fontFamily: 'Roboto',
       ),
-      // سنقوم بتغيير هذا لاحقًا إلى شاشتنا الرئيسية الفعلية
-      home: Scaffold( 
-        appBar: AppBar(
-          title: Text('Mishwary - تحت الإنشاء'),
-        ),
-        body: Center(
-          child: Text('تم تهيئة قاعدة البيانات بنجاح!'),
-        ),
-      ),
+      // تم تغيير الشاشة الرئيسية هنا
+      home: const HomeScreen(), 
       debugShowCheckedModeBanner: false,
     );
   }
